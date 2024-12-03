@@ -7,7 +7,7 @@ pub fn pt_1(input: String) {
 }
 
 pub fn pt_2(input: String) {
-  todo
+  find_with(input, "mul\\((\\d+),(\\d+)\\)|don't\\(\\)|do\\(\\)")
 }
 
 fn find_with(input: String, pattern: String) {
