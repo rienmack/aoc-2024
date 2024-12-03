@@ -1,43 +1,36 @@
+import gleam/dict
 import gleam/int
 import gleam/list
+import gleam/result
 import gleam/string
 
-pub fn pt_1(input: String) -> Int {
-  let pairs =
-    input
-    |> string.trim()
-    |> string.split("\n")
-    |> list.map(fn(line) {
-      let assert [left, right] = string.split(line, "   ")
-      #(int.parse(left), int.parse(right))
-    })
-
-  // Extract and handle successful integer parses
-  let parsed_pairs =
-    list.filter_map(pairs, fn(pair) {
-      case pair {
-        #(Ok(left), Ok(right)) -> Ok(#(left, right))
-        _ -> Error(Nil)
-      }
-    })
-
-  // Sort the left and right lists separately
-  let left_list =
-    parsed_pairs
-    |> list.map(fn(pair) { pair.0 })
-    |> list.sort(int.compare)
-
-  let right_list =
-    parsed_pairs
-    |> list.map(fn(pair) { pair.1 })
-    |> list.sort(int.compare)
-
-  // Calculate the distance between paired elements
-  list.zip(left_list, right_list)
-  |> list.map(fn(pair) { int.absolute_value(pair.0 - pair.1) })
-  |> list.fold(0, fn(acc, distance) { acc + distance })
+fn parse(data: String) -> #(List(Int), List(Int)) {
+  data
+  |> string.split("\n")
+  |> list.map(fn(x) {
+    let assert Ok([a, b]) =
+      string.split(x, "   ") |> list.map(int.parse) |> result.all
+    #(a, b)
+  })
+  |> list.unzip
 }
 
-pub fn pt_2(_input: String) {
-  todo
+pub fn pt_1(input: String) -> Int {
+  input
+  |> parse
+  |> fn(data) {
+    list.zip(list.sort(data.0, int.compare), list.sort(data.1, int.compare))
+  }
+  |> list.map(fn(data) { int.absolute_value(data.0 - data.1) })
+  |> int.sum
+}
+
+pub fn pt_2(input: String) {
+  let #(line1, line2) = parse(input)
+  let freq =
+    list.fold(line2, dict.new(), fn(acc, x) {
+      dict.insert(acc, x, 1 + result.unwrap(dict.get(acc, x), 0))
+    })
+  list.map(line1, fn(x) { x * result.unwrap(dict.get(freq, x), 0) })
+  |> int.sum
 }
