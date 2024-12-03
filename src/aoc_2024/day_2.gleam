@@ -32,5 +32,13 @@ pub fn pt_1(input: String) {
 }
 
 pub fn pt_2(input: String) {
-  todo as "part 2 not implemented"
+  input
+  |> parse
+  |> list.count(fn(row) {
+    row
+    |> list.index_map(fn(_, idx) {
+      list.append(list.take(row, idx), list.drop(row, idx + 1))
+    })
+    |> list.any(is_safe)
+  })
 }
